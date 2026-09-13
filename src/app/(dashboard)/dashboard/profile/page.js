@@ -130,6 +130,24 @@ export default function ProfilePage() {
       });
   }, []);
 
+  const updateMemorySettings = async (updates) => {
+    const previous = settings;
+    setSettings((current) => ({ ...current, ...updates }));
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+      if (!res.ok) throw new Error("Failed to update memory settings");
+      const data = await res.json();
+      setSettings((current) => ({ ...current, ...data }));
+    } catch (error) {
+      setSettings(previous);
+      console.error("Failed to update memory settings:", error);
+    }
+  };
+
   const updateOutboundProxy = async (e) => {
     e.preventDefault();
     if (settings.outboundProxyEnabled !== true) return;
@@ -838,6 +856,52 @@ export default function ProfilePage() {
                 {dbStatus.message}
               </p>
             )}
+          </div>
+        </Card>
+
+        {/* Optional local memory */}
+        <Card>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="size-10 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[20px]">account_tree</span>
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-semibold">Local Memory</h3>
+              <p className="text-xs sm:text-sm text-text-muted">Optional Obsidian and Graphify integration</p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-4 p-3 rounded-lg bg-bg border border-border">
+              <div>
+                <p className="font-medium text-sm sm:text-base">Save chats to Obsidian</p>
+                <p className="text-xs sm:text-sm text-text-muted">Writes completed chats as Markdown in your vault.</p>
+              </div>
+              <Toggle checked={settings.obsidianEnabled === true} onChange={(checked) => updateMemorySettings({ obsidianEnabled: checked })} />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium">Obsidian vault path</label>
+              <Input
+                value={settings.obsidianVault || ""}
+                onChange={(e) => setSettings((current) => ({ ...current, obsidianVault: e.target.value }))}
+                onBlur={() => updateMemorySettings({ obsidianVault: settings.obsidianVault || "" })}
+                placeholder="~/storage/shared/Documents/Obsidian/9router-memory"
+              />
+              <p className="text-xs text-text-muted">Leave empty to use the default Termux shared-storage path.</p>
+            </div>
+            <div className="flex items-center justify-between gap-4 p-3 rounded-lg bg-bg border border-border">
+              <div>
+                <p className="font-medium text-sm sm:text-base">Enable Graphify</p>
+                <p className="text-xs sm:text-sm text-text-muted">Keeps Graphify optional and never blocks chat responses.</p>
+              </div>
+              <Toggle checked={settings.graphifyEnabled === true} onChange={(checked) => updateMemorySettings({ graphifyEnabled: checked })} />
+            </div>
+            <div className="flex items-center justify-between gap-4 p-3 rounded-lg bg-bg border border-border">
+              <div>
+                <p className="font-medium text-sm sm:text-base">Graphify auto-refresh</p>
+                <p className="text-xs sm:text-sm text-text-muted">Runs the local graphify command after completed chats. Can use CPU/battery.</p>
+              </div>
+              <Toggle checked={settings.graphifyAutoRefresh === true} onChange={(checked) => updateMemorySettings({ graphifyAutoRefresh: checked })} />
+            </div>
           </div>
         </Card>
 

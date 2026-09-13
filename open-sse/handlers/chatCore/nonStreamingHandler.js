@@ -9,6 +9,7 @@ import { parseSSEToOpenAIResponse } from "./sseToJsonHandler.js";
 import { unwrapClineEnvelope } from "../../shared/clineEnvelope.js";
 import { buildRequestDetail, extractRequestConfig, extractUsageFromResponse, saveUsageStats, formatDoneLine } from "./requestDetail.js";
 import { appendRequestLog, saveRequestDetail } from "@/lib/usageDb.js";
+import { scheduleChatMemory } from "@/lib/memory/index.js";
 import { decloakToolNames } from "../../utils/claudeCloaking.js";
 import { ROLE, RESPONSES_ITEM } from "../../translator/schema/index.js";
 
@@ -393,6 +394,14 @@ export async function handleNonStreamingResponse({ providerResponse, provider, m
     status: "success"
   }, { endpoint: clientRawRequest?.endpoint || null })).catch(err => {
     console.error("[RequestDetail] Failed to save:", err.message);
+  });
+
+  scheduleChatMemory({
+    body,
+    content: translatedResponse?.choices?.[0]?.message?.content || translatedResponse?.content || "",
+    provider,
+    model,
+    stream: false,
   });
 
   return {

@@ -62,6 +62,11 @@ const DEFAULT_SETTINGS = {
   pxpipeAutoInstall: true,
   pxpipeMinChars: 25000,
   pxpipeTimeoutMs: 15000,
+  // Optional local memory integrations. Disabled by default for privacy and mobile resource safety.
+  obsidianEnabled: false,
+  obsidianVault: "",
+  graphifyEnabled: false,
+  graphifyAutoRefresh: false,
 };
 
 async function readRaw() {

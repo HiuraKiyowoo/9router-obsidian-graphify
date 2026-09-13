@@ -7,6 +7,7 @@ import { STREAM_STALL_TIMEOUT_MS } from "../../config/runtimeConfig.js";
 import { buildAbortedResponsesTerminalBytes } from "../../utils/responsesStreamHelpers.js";
 import { buildRequestDetail, extractRequestConfig, saveUsageStats, formatDoneLine } from "./requestDetail.js";
 import { saveRequestDetail } from "@/lib/usageDb.js";
+import { scheduleChatMemory } from "@/lib/memory/index.js";
 import { SSE_HEADERS_CORS as SSE_HEADERS } from "../../utils/sseConstants.js";
 
 // Codex returns Responses API SSE → which client format to translate INTO, by request sourceFormat.
@@ -137,6 +138,7 @@ export function buildOnStreamComplete({ provider, model, connectionId, apiKey, r
 
     // Persist stream usage to DB (no console line; the "📊 done" line below is authoritative)
     saveUsageStats({ provider, model, tokens: usage, connectionId, apiKey, endpoint: clientRawRequest?.endpoint, label: "STREAM USAGE", silent: true });
+    scheduleChatMemory({ body, content: safeContent, provider, model, stream: true });
     if (log?.line) log.line(reqTag, "📊", formatDoneLine({ usage, latency }));
   };
 
