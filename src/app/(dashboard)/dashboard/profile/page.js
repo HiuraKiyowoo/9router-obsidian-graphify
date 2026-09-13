@@ -902,6 +902,29 @@ export default function ProfilePage() {
               </div>
               <Toggle checked={settings.graphifyAutoRefresh === true} onChange={(checked) => updateMemorySettings({ graphifyAutoRefresh: checked })} />
             </div>
+            <div className="flex items-center justify-between gap-4 p-3 rounded-lg bg-bg border border-border">
+              <div>
+                <p className="font-medium text-sm sm:text-base">Inject memory context</p>
+                <p className="text-xs sm:text-sm text-text-muted">Adds relevant Obsidian and Graphify results to the next AI request.</p>
+              </div>
+              <Toggle
+                checked={settings.memoryContextEnabled === true}
+                disabled={settings.obsidianEnabled !== true && settings.graphifyEnabled !== true}
+                onChange={(checked) => updateMemorySettings({ memoryContextEnabled: checked })}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium">Maximum context characters</label>
+              <Input
+                type="number"
+                min="1000"
+                max="12000"
+                value={settings.memoryContextMaxChars || 6000}
+                onChange={(e) => setSettings((current) => ({ ...current, memoryContextMaxChars: e.target.value }))}
+                onBlur={() => updateMemorySettings({ memoryContextMaxChars: Math.max(1000, Math.min(Number(settings.memoryContextMaxChars) || 6000, 12000)) })}
+              />
+              <p className="text-xs text-text-muted">Capped at 12,000 characters to protect phone performance and token usage.</p>
+            </div>
           </div>
         </Card>
 

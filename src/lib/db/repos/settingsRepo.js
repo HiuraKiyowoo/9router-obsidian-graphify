@@ -67,6 +67,8 @@ const DEFAULT_SETTINGS = {
   obsidianVault: "",
   graphifyEnabled: false,
   graphifyAutoRefresh: false,
+  memoryContextEnabled: false,
+  memoryContextMaxChars: 6000,
 };
 
 async function readRaw() {
